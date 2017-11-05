@@ -1,0 +1,17 @@
+class Person {    //定义一个类，类名称的首字母要大写
+	String name;
+	int age;
+    public void info(){
+		System.out.println("name: " + name + ", age: " + age);
+	}
+}
+
+public class Demo01 {
+	public static void main(String[] args) {
+		Person per = null;  //声明对象
+		//per = new Person();  //实例化对象
+		per.name = "张三";  //设置对象的属性
+		per.age = 18;  //设置对象的属性
+		per.info();  //调用对象中的方法
+	}
+}
