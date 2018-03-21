@@ -4,6 +4,10 @@
 
 面向对象三大特征：封装，继承，多态
 
+
+![](https://raw.githubusercontent.com/pgao0823/Picture/master/类和对象.png)
+
+
 ## Demo01讲述了两个知识点： ##
 
 1.类的定义和对象的产生
