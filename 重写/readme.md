@@ -34,7 +34,7 @@
     Returns:
     a string representation of the object.
     
-此时默认继承了Object类中的toString方法，相当于System.out.println("d = " + d.toString());这样的输出我觉得带一个hashCode码不是想要得到的输出，也就是说**当对父类的方法不满意时，可以重写父类的方法来实现自己的目的：**
+此时默认继承了Object类中的toString方法，相当于System.out.println("d = " + d.toString());如果觉得带一个hashCode码不是想要得到的输出，也就是说**当对父类的方法不满意时，可以重写父类的方法来实现自己的目的：**
 
     package com.gaopan.test;
     
