@@ -102,4 +102,110 @@ public synchronized static void m(){} 等同于synchronized(demo01.T.class)	，�
     thread2, count = 6
     thread1, count = 5
 
-这就是通常所说的原子操作。
+###这就是通常所说的原子操作。
+
+###同步非同步方式可以同时调用
+通过打印结果可以看出，第一个线程在运行m1方法的时候，虽然锁定了当前对象，但是第二个线程依然可以运行m2方法。这个很好解释，因为只有m1方法执行的时候是需要锁定当前对象的，而m2执行的时候是不需要申请这把锁的。
+
+
+    package demo03;
+    
+    import java.util.concurrent.TimeUnit;
+    
+    public class T {
+    	
+    	public synchronized void m1() {
+    		System.out.println("m1 start ...");
+    		try {
+    			Thread.sleep(10000);
+    		} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		System.out.println("m1 end ...");
+    	}
+    	
+    	public void m2() {
+    		try {
+    			Thread.sleep(5000);
+    		} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		System.out.println("m2");
+    	}
+    
+    	public static void main(String[] args) {
+    		T t = new T();
+    		new Thread(new Runnable() {
+    			@Override
+    			public void run() {
+    				t.m1();
+    			}	
+    		}).start();
+    		//java8 lambda表达式
+    		new Thread(()->t.m2(),"t2").start();
+		    //更简洁的写法
+		    //new Thread(t::m2,"t2").start();
+    	}
+    
+    }
+
+输出结果
+
+    m1 start ...
+    m2
+    m1 end ...
+
+
+###对业务写的方法加锁，读的方法不加锁，容易产生脏读（dirtyRead）问题
+
+    package demo04;
+    
+    public class Account {
+    	
+    	private String name;
+    	private double money;
+    	
+    	public synchronized void set(String name, double money) {
+    		this.name = name;
+    		/*模拟业务代码在执行，在同步方法执行的时候，其他非同步方法比如getMoney方法也可以执行，
+    		 * 一个线程在执行set方法的this.name=name和this.money=mone之间，
+    		 * 另一个线程的getMoney方法执行了，来读取账户上的钱数，这个时候读取到的money值是初始值0，这就产生了脏读*/
+    		try {
+    			Thread.sleep(1000);
+    		} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		this.money = money;
+    	}
+    
+    	public double getMoney(String name) {
+    		return this.money;
+    	}
+    	
+    	public static void main(String[] args) {
+    		Account a = new Account();
+    		new Thread(()->a.set("gaopan",100.0),"t1").start();
+    		System.out.println(a.getMoney("gaopan"));
+    		
+    		try {
+    			Thread.sleep(2000);
+    		} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		
+    		System.out.println(a.getMoney("gaopan"));
+    	}
+    
+    }
+
+
+输出结果：
+
+    0.0
+    100.0
+
+解决办法就是在读的方法上也加上synchronized同步锁
